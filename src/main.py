@@ -304,8 +304,8 @@ def main():
 			for i in bolas:
 				if jugador.colisionan(i):
 					vidas = vidas - 1;
-					#jugador.velocidad[1] = -500;
 					jugador.posicion[1] = -100;
+					jugador.colisionado = False;
 					sonidos_herida[randint(0, len(sonidos_herida)-1)].play();
 					inmune = True;
 					tiempoInmunidad = pygame.time.get_ticks();
@@ -391,7 +391,7 @@ def main():
 		###############################################################
 		# Comprobamos si ha finalizado la inmunidad.
 		###############################################################
-		if pygame.time.get_ticks() - tiempoInmunidad > 3000:
+		if pygame.time.get_ticks() - tiempoInmunidad > 5000:
 			inmune = False;
 			if ultima_bola_colisiono != None and ultimo_mosaico != None:
 				ultima_bola_colisiono.mosaico = ultimo_mosaico;
