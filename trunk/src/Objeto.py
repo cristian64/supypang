@@ -23,11 +23,9 @@ class Objeto(object):
 		self.colisionado = False;
 
 	def getRebote(self):
-		print "rebotandoooooo";
 		return (self.rebote_horizontal+self.rebote_vertical)/2;
 
 	def setRebote(self, rebote):
-		print "esto no aparece en la vida";
 		self.rebote_horizontal = rebote;
 		self.rebote_vertical = rebote;
 		
