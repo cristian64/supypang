@@ -58,6 +58,9 @@ def main():
 	sonidos_herida.append(pygame.mixer.Sound("../resources/sonidos/muerto4.wav"));
 	sonidos_disparo = [];
 	sonidos_disparo.append(pygame.mixer.Sound("../resources/sonidos/disparo1.wav"));
+	sonido_bso = pygame.mixer.Sound("../resources/sonidos/bso.wav");
+	sonido_bso.set_volume(0.2);
+	sonido_bso.play(-1);
 
 	###############################################################
 	# Variables con el estado del juego.
@@ -157,12 +160,15 @@ def main():
 			elif pbola.width == 128:
 				bolaMosaico = bola64;
 
+			velocidad_horizontal = randint(70, 150);
+			velocidad_vertical = randint(250, 400);
 			bola = Objeto();
 			bola.width = bola.height = pbola.width/2;
 			bola.posicion = pbola.posicion;
 			bola.aceleracion = pbola.aceleracion;
-			bola.velocidad = Vector2D(-50, -300);
+			bola.velocidad = Vector2D(-velocidad_horizontal, -velocidad_vertical);
 			bola.mosaico = bolaMosaico;
+			bola.rebote = randint(90, 95)/100.0;
 			bola.colisionado = True;
 			bola.color = (250, 50, 50);
 			bolas.append(bola);
@@ -171,8 +177,9 @@ def main():
 			bola.width = bola.height = pbola.width/2;
 			bola.posicion = pbola.posicion;
 			bola.aceleracion = pbola.aceleracion;
-			bola.velocidad = Vector2D(50, -300);
+			bola.velocidad = Vector2D(velocidad_horizontal, -velocidad_vertical);
 			bola.mosaico = bolaMosaico;
+			bola.rebote = randint(90, 95)/100.0;
 			bola.colisionado = True;
 			bola.color = (250, 50, 50);
 			bolas.append(bola);
@@ -378,12 +385,13 @@ def main():
 			else:
 				bolaRota(i);
 				bolas_destruidas = bolas_destruidas + 1;
-				nuevo_nivel = bolas_destruidas / 100 + 1;
+				nuevo_nivel = bolas_destruidas / 50 + 1;
 				if nuevo_nivel != nivel:
 					nivel = nuevo_nivel;
 					mostrar_nivel = mostrar_nivel_inicial;
 					vidas = vidas + 2;
 					cambio_nivel.play();
+					tiempoInsertarBola = pygame.time.get_ticks() + 15000;
 				puntuacion = puntuacion + len(bolas)*((i.width/16)+nivel);
 				rompiendo_bola.play();
 		bolas = bolas_aux;
@@ -398,10 +406,13 @@ def main():
 			tiempoInmunidad = pygame.time.get_ticks();
 
 		###############################################################
-		# Insertamos más bolas según la cantidad de bolas destruidas.
+		# Insertamos más bolas.
 		###############################################################
-		if pygame.time.get_ticks() - tiempoInsertarBola > max(2000, 10000-bolas_destruidas*15):
-			insertarBola64();
+		if pygame.time.get_ticks() - tiempoInsertarBola > 5000:
+			if len(bolas) < nivel*2+4 or vidas > 10:
+				if nivel<10: insertarBola64();
+				elif nivel<20: insertarBola128();
+				elif nivel<30: insertarBola256();
 			tiempoInsertarBola = pygame.time.get_ticks();
 
 		###############################################################

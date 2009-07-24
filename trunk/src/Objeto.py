@@ -13,8 +13,7 @@ class Objeto:
 		self.posicion = Vector2D();
 		self.velocidad = Vector2D();
 		self.aceleracion = Vector2D();
-		self.azarosidad = 0.0; # Al colisionar, calcular la nueva dirección con un grado de azarosidad.
-		self.rebote = 1; # Entre 0 y 1 incluidos (0 no rebota, 1 hace un rebote perfecto).
+		self.rebote = 1; # Entre 0 y 1 incluido (0 no rebota, 1 hace un rebote perfecto).
 		self.width = 0.0;
 		self.height = 0.0;
 		self.color = (255, 255, 255);
