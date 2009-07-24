@@ -4,7 +4,7 @@ import pygame;
 from Vector2D import *;
 from Mosaico import *;
 
-class Objeto:
+class Objeto(object):
 	"""Clase abastracta que representa un objeto genérico: posición, velocidad, modelo, ..."""
 
 	ESCENARIO = None;
@@ -13,13 +13,25 @@ class Objeto:
 		self.posicion = Vector2D();
 		self.velocidad = Vector2D();
 		self.aceleracion = Vector2D();
-		self.rebote = 1; # Entre 0 y 1 incluido (0 no rebota, 1 hace un rebote perfecto).
+		self.rebote_horizontal = 1.0; # Entre 0 y 1 incluido (0 no rebota, 1 hace un rebote perfecto).
+		self.rebote_vertical = 1.0;
 		self.width = 0.0;
 		self.height = 0.0;
 		self.color = (255, 255, 255);
 		self.mosaico = None;
 		self.numImagen = 0.0;
 		self.colisionado = False;
+
+	def getRebote(self):
+		print "rebotandoooooo";
+		return (self.rebote_horizontal+self.rebote_vertical)/2;
+
+	def setRebote(self, rebote):
+		print "esto no aparece en la vida";
+		self.rebote_horizontal = rebote;
+		self.rebote_vertical = rebote;
+		
+	rebote = property(getRebote, setRebote);
 
 	def actualizar(self, tiempoTranscurrido):
 		tiempoTranscurrido = tiempoTranscurrido / 1000.0;
@@ -28,21 +40,21 @@ class Objeto:
 
 		if self.__class__.ESCENARIO != None:
 			if self.posicion[0]-self.width/2.0 < self.__class__.ESCENARIO[0]:
-				self.posicion[0] = self.posicion[0] + (self.__class__.ESCENARIO[0] - self.posicion[0] + self.width/2.0) * (1 + self.rebote);
-				self.velocidad[0] = self.rebote * abs(self.velocidad[0]);
+				self.posicion[0] = self.posicion[0] + (self.__class__.ESCENARIO[0] - self.posicion[0] + self.width/2.0) * (1 + self.rebote_horizontal);
+				self.velocidad[0] = self.rebote_horizontal * abs(self.velocidad[0]);
 
 			elif self.posicion[0]+self.width/2.0 > self.__class__.ESCENARIO[2]:
-				self.posicion[0] = self.posicion[0] - (self.posicion[0] + self.width/2.0 - self.__class__.ESCENARIO[2]) * (1 + self.rebote);
-				self.velocidad[0] = self.rebote * (1 if self.velocidad[0] < 0 else -1)*self.velocidad[0];
+				self.posicion[0] = self.posicion[0] - (self.posicion[0] + self.width/2.0 - self.__class__.ESCENARIO[2]) * (1 + self.rebote_horizontal);
+				self.velocidad[0] = self.rebote_horizontal * (1 if self.velocidad[0] < 0 else -1)*self.velocidad[0];
 
 			if self.posicion[1]+self.height/2.0 > self.__class__.ESCENARIO[3]:
-				self.posicion[1] = self.posicion[1] - (self.posicion[1] + self.height/2.0 - self.__class__.ESCENARIO[3]) * (1 + self.rebote);
-				self.velocidad[1] = self.rebote * (1 if self.velocidad[1] < 1 else -1)*self.velocidad[1];
+				self.posicion[1] = self.posicion[1] - (self.posicion[1] + self.height/2.0 - self.__class__.ESCENARIO[3]) * (1 + self.rebote_vertical);
+				self.velocidad[1] = self.rebote_vertical * (1 if self.velocidad[1] < 1 else -1)*self.velocidad[1];
 				self.colisionado = True;
 				
 			elif self.posicion[1]-self.height/2.0 < self.__class__.ESCENARIO[1] and self.colisionado:
-				self.posicion[1] = self.posicion[1] + (self.__class__.ESCENARIO[1] - self.posicion[1] + self.height/2.0) * 2;
-				self.velocidad[1] = self.rebote * abs(self.velocidad[1]);
+				self.posicion[1] = self.posicion[1] + (self.__class__.ESCENARIO[1] - self.posicion[1] + self.height/2.0) * (1 + self.rebote_vertical);
+				self.velocidad[1] = self.rebote_vertical * abs(self.velocidad[1]);
 
 	def colisionan(self, otro):
 		ei = self.posicion[0]-self.width/2;

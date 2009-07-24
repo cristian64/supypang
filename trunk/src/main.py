@@ -88,7 +88,7 @@ def main():
 	jugador.width = jugador.mosaico.tamanoColumna+1;
 	jugador.height = jugador.mosaico.tamanoFila+1;
 	jugador.posicion = Vector2D(Objeto.ESCENARIO[2]/2, math.floor(Objeto.ESCENARIO[3]-jugador.height/2.0));
-	jugador.aceleracion[1] = 2000;
+	jugador.aceleracion[1] = 5000;
 	jugador.rebote = 0.0;
 	jugadores.append(jugador);
 
@@ -166,9 +166,9 @@ def main():
 			bola.width = bola.height = pbola.width/2;
 			bola.posicion = pbola.posicion;
 			bola.aceleracion = pbola.aceleracion;
-			bola.velocidad = Vector2D(-velocidad_horizontal, -velocidad_vertical);
+			bola.velocidad = Vector2D(-velocidad_horizontal+pbola.velocidad[0], -velocidad_vertical);
 			bola.mosaico = bolaMosaico;
-			bola.rebote = randint(90, 95)/100.0;
+			bola.rebote_vertical = 0.5 if randint(0, 30) == 0 else 1.0;
 			bola.colisionado = True;
 			bola.color = (250, 50, 50);
 			bolas.append(bola);
@@ -177,9 +177,9 @@ def main():
 			bola.width = bola.height = pbola.width/2;
 			bola.posicion = pbola.posicion;
 			bola.aceleracion = pbola.aceleracion;
-			bola.velocidad = Vector2D(velocidad_horizontal, -velocidad_vertical);
+			bola.velocidad = Vector2D(velocidad_horizontal+pbola.velocidad[0], -velocidad_vertical);
 			bola.mosaico = bolaMosaico;
-			bola.rebote = randint(90, 95)/100.0;
+			bola.rebote_vertical = 0.5 if randint(0, 30) == 0 else 1.0;
 			bola.colisionado = True;
 			bola.color = (250, 50, 50);
 			bolas.append(bola);
@@ -215,11 +215,11 @@ def main():
 
 				if eventos.key == K_ESCAPE:
 					salir = True;
-				elif eventos.key == K_SPACE and jugador.velocidad[1] == 0:
-					jugador.velocidad[1] = -600;
-				elif eventos.key == K_UP:
+				elif eventos.key == K_UP and jugador.velocidad[1] == 0:
+					jugador.velocidad[1] = -1000;
+				elif eventos.key == K_SPACE:
 					reproducir_sonido = True;
-					if modo_disparo == "flechas" and len(flechas) < nivel:
+					if modo_disparo == "flechas" and len(flechas) < nivel/2+3:
 						flecha = Objeto();
 						flecha.mosaico = flecha_azul;
 						flecha.width = flecha.mosaico.tamanoColumna;
@@ -227,7 +227,7 @@ def main():
 						flecha.posicion = Vector2D(jugador.posicion[0], Objeto.ESCENARIO[3]-flecha.height/2);
 						flecha.velocidad = Vector2D(0, -200);
 						flechas.append(flecha);
-					elif modo_disparo == "ganchos" and len(ganchos) < nivel:
+					elif modo_disparo == "ganchos" and len(ganchos) < nivel/2+2:
 						gancho = Objeto();
 						gancho.mosaico = gancho_azul;
 						gancho.width = gancho.mosaico.tamanoColumna;
@@ -254,7 +254,7 @@ def main():
 		teclado = pygame.key.get_pressed();
 
 		# Comprobamos hacia dónde está dirigiéndose el jugador.
-		if teclado[K_SPACE]:
+		if teclado[K_RETURN]:
 			velocidad = 600;
 		else:
 			velocidad = 400;
@@ -385,7 +385,7 @@ def main():
 			else:
 				bolaRota(i);
 				bolas_destruidas = bolas_destruidas + 1;
-				nuevo_nivel = bolas_destruidas / 50 + 1;
+				nuevo_nivel = bolas_destruidas / 30 + 1;
 				if nuevo_nivel != nivel:
 					nivel = nuevo_nivel;
 					mostrar_nivel = mostrar_nivel_inicial;
@@ -418,11 +418,11 @@ def main():
 		###############################################################
 		# Comprobamos qué arma tiene el jugador.
 		###############################################################
-		if pygame.time.get_ticks() - tiempoObtenerFlecha > 15000:
+		if pygame.time.get_ticks() - tiempoObtenerFlecha > 10000:
 			modo_disparo = "flechas";
 			tiempoObtenerFlecha = pygame.time.get_ticks();
 
-		if pygame.time.get_ticks() - tiempoObtenerGancho > 30000 and obtener_gancho == None:
+		if pygame.time.get_ticks() - tiempoObtenerGancho > 25000 and obtener_gancho == None:
 			obtener_gancho = Objeto();
 			obtener_gancho.width = obtener_gancho.height = 32;
 			obtener_gancho.mosaico = cambio_arma;
@@ -493,10 +493,10 @@ def main():
 		mostrar_nivel = mostrar_nivel - tiempoTranscurrido;
 		if (mostrar_nivel > 0):
 			pancarta_nivel_aux = pancarta_nivel.copy();
-			texto = pygame.font.Font("../resources/otros/futurama.ttf", 55).render('NIVEL: ' +  str(nivel), True, (0, 0, 0));
-			pancarta_nivel_aux.blit(texto, (40+1, 50+1));
-			texto = pygame.font.Font("../resources/otros/futurama.ttf", 55).render('NIVEL: ' +  str(nivel), True, (255, 255, 255));
-			pancarta_nivel_aux.blit(texto, (40, 50));
+			texto = pygame.font.Font("../resources/otros/futurama.ttf", 30).render('NIVEL: ' +  str(nivel) if nivel < 100 else 'N: ' +  str(nivel), True, (0, 0, 0));
+			pancarta_nivel_aux.blit(texto, (37+1, 37+1));
+			texto = pygame.font.Font("../resources/otros/futurama.ttf", 30).render('NIVEL: ' +  str(nivel) if nivel < 100 else 'N: ' +  str(nivel), True, (255, 255, 255));
+			pancarta_nivel_aux.blit(texto, (37, 37));
 
 			ventana.blit(pancarta_nivel_aux, (width/2 - pancarta_nivel.get_width()/2, margen[1]+10));
 
