@@ -46,14 +46,21 @@ class Objeto:
 				self.velocidad[1] = self.rebote * abs(self.velocidad[1]);
 
 	def colisionan(self, otro):
-		efi = self.posicion[0]-self.width/2;
-		efd = self.posicion[0]+self.width/2;
-		af = self.posicion[1]-self.height/2;
-		eei = otro.posicion[0]-otro.width/2;
-		eed = otro.posicion[0]+otro.width/2;
-		ae = otro.posicion[1]+otro.height/2;
+		ei = self.posicion[0]-self.width/2;
+		ed = self.posicion[0]+self.width/2;
+		ea = self.posicion[1]-self.height/2;
+		eb = self.posicion[1]+self.height/2;
+		ei2 = otro.posicion[0]-otro.width/2;
+		ed2 = otro.posicion[0]+otro.width/2;
+		ea2 = otro.posicion[1]-otro.height/2;
+		eb2 = otro.posicion[1]+otro.height/2;
 
-		return ((eei <= efi and efi <= eed) or (eei <= efd and efd <= eed)) and (af < ae);
+		colisionan = False;
+		if (ea <= ea2 and ea2 <= eb) or (ea <= eb2 and eb2 <= eb) or (ea2 <= ea and ea <= eb2) or (ea2 <= eb and eb <= eb2):
+			if (ei <= ei2 and ei2 <= ed) or (ei <= ed2 and ed2 <= ed) or (ei2 <= ei and ei <= ed2) or (ei2 <= ed and ed <= ed2):
+				colisionan = True;
+
+		return colisionan;
 
 	def dibujar(self, superficie, tiempoTranscurrido):
 		if self.mosaico != None:
