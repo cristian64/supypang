@@ -3,7 +3,7 @@
 import pygame;
 from Vector2D import *;
 
-class Mosaico:
+class Mosaico(object):
 	"""Representa un mosaico de imágenes que se obtienen desde un único fichero."""
 
 	def __init__(self, nomFich, filas, columnas, numImagenes, duracion):

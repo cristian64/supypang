@@ -1,7 +1,7 @@
 # coding: utf-8
 
 from math import sqrt
-class Vector2D:
+class Vector2D(object):
 	"""Clase que representa un vector en R2."""
 	
 	def __init__(self, x=0.0, y=0.0):
