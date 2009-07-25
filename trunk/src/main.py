@@ -25,7 +25,8 @@ def main():
 	height = 600;
 	margen = (10, 10, 10, 80);
 	ventana = pygame.display.set_mode((width, height));
-	pygame.display.set_caption('Supy Pang');
+	pygame.display.set_caption('Supy Pang', "../resources/imagenes/icono16.png");
+	#pygame.display.set_icon(pygame.image.load("../resources/imagenes/icono16.png"));
 	Objeto.ESCENARIO = (margen[0], margen[1], width-margen[2], height-margen[3]);
 	seed(pygame.time.get_ticks());
 
@@ -225,19 +226,19 @@ def main():
 						flecha.width = flecha.mosaico.tamanoColumna;
 						flecha.height = 30;
 						flecha.posicion = Vector2D(jugador.posicion[0], Objeto.ESCENARIO[3]-flecha.height/2);
-						flecha.velocidad = Vector2D(0, -200);
+						flecha.velocidad = Vector2D(0, -200 if jugador.velocidad[1] == 0 else -500);
 						flechas.append(flecha);
-					elif modo_disparo == "ganchos" and len(ganchos) < nivel/2+2:
+					elif modo_disparo == "ganchos" and len(ganchos)+len(ganchos_anclados) < nivel/2+3:
 						gancho = Objeto();
 						gancho.mosaico = gancho_azul;
 						gancho.width = gancho.mosaico.tamanoColumna;
 						gancho.height = 30;
 						gancho.posicion = Vector2D(jugador.posicion[0], Objeto.ESCENARIO[3]-gancho.height/2);
-						gancho.velocidad = Vector2D(0, -200);
+						gancho.velocidad = Vector2D(0, -200 if jugador.velocidad[1] == 0 else -500);
 						ganchos.append(gancho);
 					else:
 						reproducir_sonido = False;
-					if reproducir_sonido:
+					if reproducir_sonido and (len(flechas)==1 or len(ganchos)==1):
 						sonidos_disparo[randint(0, len(sonidos_disparo)-1)].play();
 
 
