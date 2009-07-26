@@ -216,8 +216,10 @@ def main():
 			bola.posicion = pbola.posicion;
 			bola.aceleracion = pbola.aceleracion;
 			bola.velocidad = Vector2D(-velocidad_horizontal+pbola.velocidad[0], -velocidad_vertical);
+			if abs(bola.velocidad[0])<30:
+				bola.velocidad[0] = 30;
 			bola.mosaico = bolaMosaico;
-			bola.rebote_vertical = 0.5 if randint(0, 30) == 0 else 1.0;
+			bola.rebote_vertical = 0.3 if randint(0, 30) == 0 else 1.0;
 			bola.colisionado = True;
 			bola.color = (250, 50, 50);
 			bolas.append(bola);
@@ -227,8 +229,10 @@ def main():
 			bola.posicion = pbola.posicion;
 			bola.aceleracion = pbola.aceleracion;
 			bola.velocidad = Vector2D(velocidad_horizontal+pbola.velocidad[0], -velocidad_vertical);
+			if abs(bola.velocidad[0])<30:
+				bola.velocidad[0] = 30;
 			bola.mosaico = bolaMosaico;
-			bola.rebote_vertical = 0.5 if randint(0, 30) == 0 else 1.0;
+			bola.rebote_vertical = 0.3 if randint(0, 30) == 0 else 1.0;
 			bola.colisionado = True;
 			bola.color = (250, 50, 50);
 			bolas.append(bola);
@@ -513,7 +517,7 @@ def main():
 			if len(bolas) < nivel*2+4 or vidas > 10:
 				if nivel<10: insertarBola64();
 				elif nivel<20: insertarBola128();
-				elif nivel<30: insertarBola256();
+				else: insertarBola256();
 			tiempoInsertarBola = pygame.time.get_ticks();
 
 		###############################################################
