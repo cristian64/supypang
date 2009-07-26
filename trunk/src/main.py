@@ -26,7 +26,7 @@ def main():
 	margen = (10, 10, 10, 80);
 	ventana = pygame.display.set_mode((width, height));
 	pygame.display.set_caption('Supy Pang', "../resources/imagenes/icono16.png");
-	#pygame.display.set_icon(pygame.image.load("../resources/imagenes/icono16.png"));
+	pygame.display.set_icon(pygame.image.load("../resources/imagenes/icono16.png"));
 	Objeto.ESCENARIO = (margen[0], margen[1], width-margen[2], height-margen[3]);
 	seed(pygame.time.get_ticks());
 
@@ -39,7 +39,9 @@ def main():
 	bender_corriendo_der = Mosaico("../resources/imagenes/bender-corriendo-der.png", 1, 4, 4, 0.25);
 	flecha_azul = Mosaico("../resources/imagenes/flecha.png", 1, 3, 3, 0.75);
 	gancho_azul = Mosaico("../resources/imagenes/gancho.png", 1, 1, 1, 0.0);
-	cambio_arma = Mosaico("../resources/imagenes/obtener-gancho.png", 1, 6, 6, 0.5);
+	disparo_verde = Mosaico("../resources/imagenes/disparo.png", 1, 8, 8, 0.5);
+	cambio_gancho = Mosaico("../resources/imagenes/obtener-gancho.png", 1, 6, 6, 0.5);
+	cambio_pistola = Mosaico("../resources/imagenes/obtener-pistola.png", 1, 6, 6, 0.5);
 	bola16 = Mosaico("../resources/imagenes/bola16.png", 6, 4, 24, 0.5);
 	bola32 = Mosaico("../resources/imagenes/bola32.png", 6, 4, 24, 0.5);
 	bola64 = Mosaico("../resources/imagenes/bola64.png", 6, 4, 24, 0.5);
@@ -59,6 +61,9 @@ def main():
 	sonidos_herida.append(pygame.mixer.Sound("../resources/sonidos/muerto4.wav"));
 	sonidos_disparo = [];
 	sonidos_disparo.append(pygame.mixer.Sound("../resources/sonidos/disparo1.wav"));
+	sonidos_muchos_disparos = [];
+	sonidos_muchos_disparos.append(pygame.mixer.Sound("../resources/sonidos/disparo4.wav"));
+	sonidos_muchos_disparos.append(pygame.mixer.Sound("../resources/sonidos/disparo9.wav"));
 	sonido_bso = pygame.mixer.Sound("../resources/sonidos/bso.wav");
 	sonido_bso.set_volume(0.2);
 	sonido_bso.play(-1);
@@ -79,10 +84,53 @@ def main():
 	flechas = [];
 	ganchos = [];
 	ganchos_anclados = [];
+	disparos = [];
 	jugadores = [];
 	bolas = [];
 
 	obtener_gancho = None;
+	obtener_pistola = None;
+
+	velocidades_balas1 = [];
+	velocidades_balas1.append(Vector2D(-100, -600));
+	velocidades_balas1.append(Vector2D(100, -600));
+	velocidades_balas1.append(Vector2D(50, -700));
+	velocidades_balas1.append(Vector2D(-50, -700));
+	velocidades_balas1.append(Vector2D(1, -750));
+
+	velocidades_balas2 = [];
+	velocidades_balas2.append(Vector2D(1, -620));
+	velocidades_balas2.append(Vector2D(-1, 620));
+	velocidades_balas2.append(Vector2D(620, -1));
+	velocidades_balas2.append(Vector2D(-620, 1));
+	velocidades_balas2.append(Vector2D(-100, -600));
+	velocidades_balas2.append(Vector2D(-200, -550));
+	velocidades_balas2.append(Vector2D(-300, -500));
+	velocidades_balas2.append(Vector2D(-400, -400));
+	velocidades_balas2.append(Vector2D(-500, -300));
+	velocidades_balas2.append(Vector2D(-550, -200));
+	velocidades_balas2.append(Vector2D(-600, -100));
+	velocidades_balas2.append(Vector2D(100, -600));
+	velocidades_balas2.append(Vector2D(200, -550));
+	velocidades_balas2.append(Vector2D(300, -500));
+	velocidades_balas2.append(Vector2D(400, -400));
+	velocidades_balas2.append(Vector2D(500, -300));
+	velocidades_balas2.append(Vector2D(550, -200));
+	velocidades_balas2.append(Vector2D(600, -100));
+	velocidades_balas2.append(Vector2D(100, 600));
+	velocidades_balas2.append(Vector2D(200, 550));
+	velocidades_balas2.append(Vector2D(300, 500));
+	velocidades_balas2.append(Vector2D(400, 400));
+	velocidades_balas2.append(Vector2D(500, 300));
+	velocidades_balas2.append(Vector2D(550, 200));
+	velocidades_balas2.append(Vector2D(600, 100));
+	velocidades_balas2.append(Vector2D(-100, 600));
+	velocidades_balas2.append(Vector2D(-200, 550));
+	velocidades_balas2.append(Vector2D(-300, 500));
+	velocidades_balas2.append(Vector2D(-400, 400));
+	velocidades_balas2.append(Vector2D(-500, 300));
+	velocidades_balas2.append(Vector2D(-550, 200));
+	velocidades_balas2.append(Vector2D(-600, 100));
 	
 	jugador = Objeto();
 	jugador.mosaico = bender_parado_der;
@@ -193,6 +241,7 @@ def main():
 	tiempoActualizacionGanchosAnclados = pygame.time.get_ticks();
 	tiempoInsertarBola = pygame.time.get_ticks()-30000;
 	tiempoObtenerGancho = pygame.time.get_ticks();
+	tiempoObtenerPistola = pygame.time.get_ticks();
 	tiempoObtenerFlecha = pygame.time.get_ticks();
 	tiempoInmunidad = pygame.time.get_ticks();
 	tiempoTranscurrido = 0.0;
@@ -217,7 +266,13 @@ def main():
 				if eventos.key == K_ESCAPE:
 					salir = True;
 				elif eventos.key == K_UP and jugador.velocidad[1] == 0:
-					jugador.velocidad[1] = -1000;
+					jugador.velocidad[1] = -1200;
+				elif eventos.key == K_i:
+					print "Número de bolas: " + str(len(bolas));
+					print "Número de flechas: " + str(len(flechas));
+					print "Número de ganchos: " + str(len(ganchos));
+					print "Número de ganchos anclados: " + str(len(ganchos_anclados));
+					print "Número de disparos: " + str(len(disparos));
 				elif eventos.key == K_SPACE:
 					reproducir_sonido = True;
 					if modo_disparo == "flechas" and len(flechas) < nivel/2+3:
@@ -236,6 +291,21 @@ def main():
 						gancho.posicion = Vector2D(jugador.posicion[0], Objeto.ESCENARIO[3]-gancho.height/2);
 						gancho.velocidad = Vector2D(0, -200 if jugador.velocidad[1] == 0 else -500);
 						ganchos.append(gancho);
+					elif modo_disparo == "pistola":
+						if jugador.velocidad[1] == 0:
+							velocidades = velocidades_balas1;
+						else:
+							velocidades = velocidades_balas2;
+						for i in velocidades:
+							disparo = Objeto();
+							disparo.mosaico = disparo_verde;
+							disparo.colisionado = True;
+							disparo.width = disparo.height = disparo.mosaico.tamanoColumna;
+							disparo.posicion = Vector2D(jugador.posicion[0], jugador.posicion[1]);
+							disparo.velocidad = i;
+							disparo.rebote = 0.0;
+							disparos.append(disparo);
+						sonidos_muchos_disparos[randint(0, len(sonidos_muchos_disparos)-1)].play();
 					else:
 						reproducir_sonido = False;
 					if reproducir_sonido and (len(flechas)==1 or len(ganchos)==1):
@@ -291,6 +361,12 @@ def main():
 			if len(ganchos_anclados) > 0:
 				ganchos_anclados.pop();
 			tiempoActualizacionGanchosAnclados = pygame.time.get_ticks();
+		disparos_aux = [];
+		for i in disparos:
+			i.actualizar(tiempoTranscurrido);
+			if i.velocidad[0]!=0 and i.velocidad[1]!=0:
+				disparos_aux.append(i);
+		disparos = disparos_aux;
 		for i in jugadores:
 			i.actualizar(tiempoTranscurrido);
 		for i in bolas:
@@ -304,6 +380,13 @@ def main():
 			if obtener_gancho.colisionan(jugador):
 				obtener_gancho = None;
 				modo_disparo = "ganchos";
+				obteniendo_gancho.play();
+				tiempoObtenerFlecha = pygame.time.get_ticks();
+		if obtener_pistola != None:
+			obtener_pistola.actualizar(tiempoTranscurrido);
+			if obtener_pistola.colisionan(jugador):
+				obtener_pistola = None;
+				modo_disparo = "pistola";
 				obteniendo_gancho.play();
 				tiempoObtenerFlecha = pygame.time.get_ticks();
 		if not inmune:
@@ -377,6 +460,23 @@ def main():
 		ganchos_anclados = ganchos_aux;
 
 		###############################################################
+		# Detectamos las colisiones entre disparos y bolas.
+		###############################################################
+		disparos_rotos = [];
+		for i in disparos:
+			for j in bolas:
+				if i.colisionan(j):
+					disparos_rotos.append(i);
+					bolas_rotas.append(j);
+
+		# Eliminamos las flechas rotas de la lista.
+		disparos_aux = [];
+		for i in disparos:
+			if not(i in disparos_rotos):
+				disparos_aux.append(i);
+		disparos = disparos_aux;
+
+		###############################################################
 		# Eliminamos las bolas rotas de la lista e insertamos bolas más pequeñas.
 		###############################################################
 		bolas_aux = [];
@@ -390,9 +490,9 @@ def main():
 				if nuevo_nivel != nivel:
 					nivel = nuevo_nivel;
 					mostrar_nivel = mostrar_nivel_inicial;
-					vidas = vidas + 2;
+					vidas = vidas + 1;
 					cambio_nivel.play();
-					tiempoInsertarBola = pygame.time.get_ticks() + 15000;
+					#tiempoInsertarBola = pygame.time.get_ticks() + 15000;
 				puntuacion = puntuacion + len(bolas)*((i.width/16)+nivel);
 				rompiendo_bola.play();
 		bolas = bolas_aux;
@@ -409,7 +509,7 @@ def main():
 		###############################################################
 		# Insertamos más bolas.
 		###############################################################
-		if pygame.time.get_ticks() - tiempoInsertarBola > 5000:
+		if pygame.time.get_ticks() - tiempoInsertarBola > 3000:
 			if len(bolas) < nivel*2+4 or vidas > 10:
 				if nivel<10: insertarBola64();
 				elif nivel<20: insertarBola128();
@@ -426,12 +526,22 @@ def main():
 		if pygame.time.get_ticks() - tiempoObtenerGancho > 25000 and obtener_gancho == None:
 			obtener_gancho = Objeto();
 			obtener_gancho.width = obtener_gancho.height = 32;
-			obtener_gancho.mosaico = cambio_arma;
+			obtener_gancho.mosaico = cambio_gancho;
 			obtener_gancho.posicion = Vector2D(randint(20, 720), -40);
 			obtener_gancho.velocidad = Vector2D(0, 0);
 			obtener_gancho.rebote = 0.3;
 			obtener_gancho.aceleracion = Vector2D(0, 300);
 			tiempoObtenerGancho = pygame.time.get_ticks();
+
+		if pygame.time.get_ticks() - tiempoObtenerPistola > 40000 and obtener_pistola == None:
+			obtener_pistola = Objeto();
+			obtener_pistola.width = obtener_pistola.height = 32;
+			obtener_pistola.mosaico = cambio_pistola;
+			obtener_pistola.posicion = Vector2D(randint(20, 720), -40);
+			obtener_pistola.velocidad = Vector2D(0, 0);
+			obtener_pistola.rebote = 0.3;
+			obtener_pistola.aceleracion = Vector2D(0, 300);
+			tiempoObtenerPistola = pygame.time.get_ticks();
 
 		###############################################################
 		# Renderizamos la escena.
@@ -444,6 +554,8 @@ def main():
 			i.dibujar(ventana, tiempoTranscurrido);
 		for i in ganchos_anclados:
 			i.dibujar(ventana, tiempoTranscurrido);
+		for i in disparos:
+			i.dibujar(ventana, tiempoTranscurrido);
 		if not inmune or randint(0,1) == 0:
 			jugador.dibujar(ventana, tiempoTranscurrido);
 		else:
@@ -452,6 +564,8 @@ def main():
 			i.dibujar(ventana, tiempoTranscurrido);
 		if obtener_gancho != None:
 			obtener_gancho.dibujar(ventana, tiempoTranscurrido);
+		if obtener_pistola != None:
+			obtener_pistola.dibujar(ventana, tiempoTranscurrido);
 
 		###############################################################
 		# Dibujamos el marco.
