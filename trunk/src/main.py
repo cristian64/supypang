@@ -216,8 +216,8 @@ def main():
 			bola.posicion = pbola.posicion;
 			bola.aceleracion = pbola.aceleracion;
 			bola.velocidad = Vector2D(-velocidad_horizontal+pbola.velocidad[0], -velocidad_vertical);
-			if abs(bola.velocidad[0])<30:
-				bola.velocidad[0] = 30;
+			if abs(bola.velocidad[0])<100:
+				bola.velocidad[0] = 100;
 			bola.mosaico = bolaMosaico;
 			bola.rebote_vertical = 0.3 if randint(0, 30) == 0 else 1.0;
 			bola.colisionado = True;
@@ -229,8 +229,8 @@ def main():
 			bola.posicion = pbola.posicion;
 			bola.aceleracion = pbola.aceleracion;
 			bola.velocidad = Vector2D(velocidad_horizontal+pbola.velocidad[0], -velocidad_vertical);
-			if abs(bola.velocidad[0])<30:
-				bola.velocidad[0] = 30;
+			if abs(bola.velocidad[0])<100:
+				bola.velocidad[0] = 100;
 			bola.mosaico = bolaMosaico;
 			bola.rebote_vertical = 0.3 if randint(0, 30) == 0 else 1.0;
 			bola.colisionado = True;
@@ -514,16 +514,19 @@ def main():
 		# Insertamos más bolas.
 		###############################################################
 		if pygame.time.get_ticks() - tiempoInsertarBola > 3000:
-			if len(bolas) < nivel*2+4 or vidas > 10:
+			if len(bolas) < nivel+5 or vidas > 10:
 				if nivel<10: insertarBola64();
 				elif nivel<20: insertarBola128();
-				else: insertarBola256();
+				else: insertarBola256() if randint(0, 10) == 0 else insertarBola128();
+			if len(bolas) == 0:
+				insertarBola64();
+				insertarBola64();
 			tiempoInsertarBola = pygame.time.get_ticks();
 
 		###############################################################
 		# Comprobamos qué arma tiene el jugador.
 		###############################################################
-		if pygame.time.get_ticks() - tiempoObtenerFlecha > 10000:
+		if pygame.time.get_ticks() - tiempoObtenerFlecha > max(10000, min(nivel*1000, 30000)):
 			modo_disparo = "flechas";
 			tiempoObtenerFlecha = pygame.time.get_ticks();
 
@@ -537,7 +540,7 @@ def main():
 			obtener_gancho.aceleracion = Vector2D(0, 300);
 			tiempoObtenerGancho = pygame.time.get_ticks();
 
-		if pygame.time.get_ticks() - tiempoObtenerPistola > 40000 and obtener_pistola == None:
+		if pygame.time.get_ticks() - tiempoObtenerPistola > max(10000, min((50-nivel)*1000, 40000)) and obtener_pistola == None:
 			obtener_pistola = Objeto();
 			obtener_pistola.width = obtener_pistola.height = 32;
 			obtener_pistola.mosaico = cambio_pistola;
