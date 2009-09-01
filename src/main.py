@@ -49,6 +49,8 @@ def main():
 	bola256 = Mosaico("../resources/imagenes/bola256.png", 6, 4, 24, 0.5);
 	pancarta_nivel = pygame.image.load("../resources/imagenes/pancarta-nivel.png");
 	bender_cabeza = pygame.image.load("../resources/imagenes/bender-cabeza.png");
+	inicio = pygame.image.load("../resources/imagenes/inicio.png");
+	gameover = pygame.image.load("../resources/imagenes/gameover.png");
 
 	###############################################################
 	# Cargando los sonidos del juego.
@@ -67,14 +69,17 @@ def main():
 	sonido_bso = pygame.mixer.Sound("../resources/sonidos/bso.wav");
 	sonido_bso.set_volume(0.2);
 	sonido_bso.play(-1);
+	sonido_gameover = pygame.mixer.Sound("../resources/sonidos/gameover.wav");
 
 	###############################################################
 	# Variables con el estado del juego.
 	###############################################################
 	puntuacion = 0;
 	nivel = 1;
+	niveles = [10, 20, 30, 40, 50, 70, 90, 100, 125, 150, 175, 200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000, 1200, 1400, 1600, 1800, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 6000, 7000, 8000, 9000, 10000];
+	niveles.reverse();
 	bolas_destruidas = 0;
-	vidas = 10;
+	vidas = 3;
 	inmune = False;
 	ultima_bola_colisiono = None;
 	ultimo_mosaico = None;
@@ -241,6 +246,7 @@ def main():
 	# Variables de control de la ejecución.
 	###############################################################
 	salir = False;
+	jugar = True;
 	tiempoUltimaActualizacion = pygame.time.get_ticks();
 	tiempoActualizacionGanchosAnclados = pygame.time.get_ticks();
 	tiempoInsertarBola = pygame.time.get_ticks()-30000;
@@ -249,6 +255,37 @@ def main():
 	tiempoObtenerFlecha = pygame.time.get_ticks();
 	tiempoInmunidad = pygame.time.get_ticks();
 	tiempoTranscurrido = 0.0;
+
+	###############################################################
+	# Esperamos a que el jugador pulse INTRO para continuar.
+	###############################################################
+	while not salir:
+
+		eventos = pygame.event.poll();
+
+		while eventos.type != NOEVENT and not salir:
+
+			if eventos.type == QUIT:
+				salir = True;
+				jugar = False;
+
+			elif eventos.type == KEYDOWN:
+
+				if eventos.key == K_ESCAPE:
+					salir = True;
+					jugar = False;
+				elif eventos.key == K_RETURN:
+					salir = True;
+					
+			eventos = pygame.event.poll();
+					
+		ventana.fill((0,0,0));
+		ventana.blit(inicio, (0,0));
+		pygame.display.flip();
+		
+	if jugar == True:
+		salir = False;
+		jugar = False;
 
 	###############################################################
 	# Inicio del juego.
@@ -279,7 +316,7 @@ def main():
 					print "Número de disparos: " + str(len(disparos));
 				elif eventos.key == K_SPACE:
 					reproducir_sonido = True;
-					if modo_disparo == "flechas" and len(flechas) < nivel/2+3:
+					if modo_disparo == "flechas" and len(flechas) < min(7, nivel/2+3):
 						flecha = Objeto();
 						flecha.mosaico = flecha_azul;
 						flecha.width = flecha.mosaico.tamanoColumna;
@@ -287,7 +324,7 @@ def main():
 						flecha.posicion = Vector2D(jugador.posicion[0], Objeto.ESCENARIO[3]-flecha.height/2);
 						flecha.velocidad = Vector2D(0, -200 if jugador.velocidad[1] == 0 else -500);
 						flechas.append(flecha);
-					elif modo_disparo == "ganchos" and len(ganchos)+len(ganchos_anclados) < nivel/2+3:
+					elif modo_disparo == "ganchos" and len(ganchos)+len(ganchos_anclados) < min(7, nivel/2+3):
 						gancho = Objeto();
 						gancho.mosaico = gancho_azul;
 						gancho.width = gancho.mosaico.tamanoColumna;
@@ -295,7 +332,7 @@ def main():
 						gancho.posicion = Vector2D(jugador.posicion[0], Objeto.ESCENARIO[3]-gancho.height/2);
 						gancho.velocidad = Vector2D(0, -200 if jugador.velocidad[1] == 0 else -500);
 						ganchos.append(gancho);
-					elif modo_disparo == "pistola":
+					elif modo_disparo == "pistola" and len(disparos) < 20:
 						if jugador.velocidad[1] == 0:
 							velocidades = velocidades_balas1;
 						else:
@@ -399,9 +436,13 @@ def main():
 			for i in bolas:
 				if jugador.colisionan(i):
 					vidas = vidas - 1;
+					if vidas == -1:
+						salir = True;
+						jugar = True;
+					else
+						sonidos_herida[randint(0, len(sonidos_herida)-1)].play();
 					jugador.posicion[1] = -100;
 					jugador.colisionado = False;
-					sonidos_herida[randint(0, len(sonidos_herida)-1)].play();
 					inmune = True;
 					tiempoInmunidad = pygame.time.get_ticks();
 					ultima_bola_colisiono = i;
@@ -490,11 +531,14 @@ def main():
 			else:
 				bolaRota(i);
 				bolas_destruidas = bolas_destruidas + 1;
-				nuevo_nivel = bolas_destruidas / 30 + 1;
-				if nuevo_nivel != nivel:
-					nivel = nuevo_nivel;
+				if niveles[len(niveles)-1] == bolas_destruidas:
+					niveles.pop();
+					if (len(niveles) == 0):
+						niveles.append(bolas_destruidas + 1000);
+					nivel = nivel + 1;
 					mostrar_nivel = mostrar_nivel_inicial;
-					vidas = vidas + 1;
+					if vidas < 10:
+						vidas = vidas + 1;
 					cambio_nivel.play();
 					#tiempoInsertarBola = pygame.time.get_ticks() + 15000;
 				puntuacion = puntuacion + len(bolas)*((i.width/16)+nivel);
@@ -514,7 +558,7 @@ def main():
 		# Insertamos más bolas.
 		###############################################################
 		if pygame.time.get_ticks() - tiempoInsertarBola > 3000:
-			if len(bolas) < nivel+5 or vidas > 10:
+			if len(bolas) < (nivel+6) or vidas > 9:
 				if nivel<10: insertarBola64();
 				elif nivel<20: insertarBola128();
 				else: insertarBola256() if randint(0, 10) == 0 else insertarBola128();
@@ -540,7 +584,7 @@ def main():
 			obtener_gancho.aceleracion = Vector2D(0, 300);
 			tiempoObtenerGancho = pygame.time.get_ticks();
 
-		if pygame.time.get_ticks() - tiempoObtenerPistola > max(10000, min((50-nivel)*1000, 40000)) and obtener_pistola == None:
+		if pygame.time.get_ticks() - tiempoObtenerPistola > 40000 and obtener_pistola == None:
 			obtener_pistola = Objeto();
 			obtener_pistola.width = obtener_pistola.height = 32;
 			obtener_pistola.mosaico = cambio_pistola;
@@ -602,12 +646,12 @@ def main():
 		texto = pygame.font.Font("../resources/otros/futurama.ttf", 17).render('BOLAS DESTRUIDAS: ' +  str(bolas_destruidas), True, (255, 255, 255));
 		ventana.blit(texto, (margen[0], height-margen[3]+50));
 
-		ventana.blit(bender_cabeza, (width-bender_cabeza.get_width()-margen[0]-margen[2]-80, height-bender_cabeza.get_height()));
+		ventana.blit(bender_cabeza, (width-bender_cabeza.get_width()-margen[0]-margen[2]-105, height-bender_cabeza.get_height()));
 
-		texto = pygame.font.Font("../resources/otros/futurama.ttf", 25).render(str(vidas), True, (0, 0, 0));
-		ventana.blit(texto, (width-margen[0]-margen[2]-80+1, height-margen[3]+31));
-		texto = pygame.font.Font("../resources/otros/futurama.ttf", 25).render(str(vidas), True, (255, 248, 16) if vidas >= 0 else (250, 50, 50));
-		ventana.blit(texto, (width-margen[0]-margen[2]-80, height-margen[3]+30));
+		texto = pygame.font.Font("../resources/otros/futurama.ttf", 25).render(str(vidas) + ' VIDAS', True, (0, 0, 0));
+		ventana.blit(texto, (width-margen[0]-margen[2]-105+1, height-margen[3]+31));
+		texto = pygame.font.Font("../resources/otros/futurama.ttf", 25).render(str(vidas) + ' VIDAS', True, (255, 248, 16) if vidas > 0 else (250, 50, 50));
+		ventana.blit(texto, (width-margen[0]-margen[2]-105, height-margen[3]+30));
 
 		###############################################################
 		# Mostramos la pancarta del nivel actual.
@@ -629,6 +673,30 @@ def main():
 		###############################################################
 		tiempoTranscurrido = pygame.time.get_ticks() - tiempoUltimaActualizacion;
 		tiempoUltimaActualizacion = pygame.time.get_ticks();
+
+
+	###############################################################
+	# Esperamos a que el usuario pulse una tecla para salir.
+	###############################################################
+	if jugar == True:
+		salir = False;
+		sonido_gameover.play();
+		ventana.blit(gameover, (0,0));
+		pygame.display.flip();
+	while not salir:
+
+		eventos = pygame.event.poll();
+
+		while eventos.type != NOEVENT and not salir:
+
+			if eventos.type == QUIT:
+				salir = True;
+
+			elif eventos.type == KEYDOWN:
+				if eventos.key == K_ESCAPE:
+					salir = True;
+
+			eventos = pygame.event.poll();
 
 	pygame.quit();
 
