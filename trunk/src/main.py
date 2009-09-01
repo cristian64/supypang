@@ -1,8 +1,8 @@
 #! /usr/bin/env python
 # coding: utf-8
 
-__author__="cristian"
-__date__ ="$03-jul-2009 20:09:44$"
+__author__="Equipo ME";
+__date__ ="$03-jul-2009 20:09:44$";
 
 
 import math;
@@ -20,13 +20,14 @@ def main():
 	###############################################################
 	# Inicialización de los recursos del sistema.
 	###############################################################
+	pygame.mixer.pre_init(44100, -16, 2, 512);
 	pygame.init();
 	width = 800;
 	height = 600;
 	margen = (10, 10, 10, 80);
 	ventana = pygame.display.set_mode((width, height));
-	pygame.display.set_caption('Supy Pang', "../resources/imagenes/icono16.png");
-	pygame.display.set_icon(pygame.image.load("../resources/imagenes/icono16.png"));
+	pygame.display.set_caption('Supy Pang');
+	pygame.display.set_icon(pygame.image.load("../resources/imagenes/icono64.png"));
 	Objeto.ESCENARIO = (margen[0], margen[1], width-margen[2], height-margen[3]);
 	seed(pygame.time.get_ticks());
 
@@ -243,22 +244,13 @@ def main():
 			bolas.append(bola);
 
 	###############################################################
-	# Variables de control de la ejecución.
+	# Esperamos a que el jugador pulse INTRO para continuar.
 	###############################################################
 	salir = False;
 	jugar = True;
-	tiempoUltimaActualizacion = pygame.time.get_ticks();
-	tiempoActualizacionGanchosAnclados = pygame.time.get_ticks();
-	tiempoInsertarBola = pygame.time.get_ticks()-30000;
-	tiempoObtenerGancho = pygame.time.get_ticks();
-	tiempoObtenerPistola = pygame.time.get_ticks();
-	tiempoObtenerFlecha = pygame.time.get_ticks();
-	tiempoInmunidad = pygame.time.get_ticks();
-	tiempoTranscurrido = 0.0;
-
-	###############################################################
-	# Esperamos a que el jugador pulse INTRO para continuar.
-	###############################################################
+	ventana.fill((0,0,0));
+	ventana.blit(inicio, (0,0));
+	pygame.display.flip();
 	while not salir:
 
 		eventos = pygame.event.poll();
@@ -274,18 +266,26 @@ def main():
 				if eventos.key == K_ESCAPE:
 					salir = True;
 					jugar = False;
-				elif eventos.key == K_RETURN:
+				elif eventos.key == K_SPACE:
 					salir = True;
 					
 			eventos = pygame.event.poll();
-					
-		ventana.fill((0,0,0));
-		ventana.blit(inicio, (0,0));
-		pygame.display.flip();
 		
 	if jugar == True:
 		salir = False;
 		jugar = False;
+
+	###############################################################
+	# Variables de control de la ejecución.
+	###############################################################
+	tiempoUltimaActualizacion = pygame.time.get_ticks();
+	tiempoActualizacionGanchosAnclados = pygame.time.get_ticks();
+	tiempoInsertarBola = pygame.time.get_ticks()-30000;
+	tiempoObtenerGancho = pygame.time.get_ticks();
+	tiempoObtenerPistola = pygame.time.get_ticks();
+	tiempoObtenerFlecha = pygame.time.get_ticks();
+	tiempoInmunidad = pygame.time.get_ticks();
+	tiempoTranscurrido = 0.0;
 
 	###############################################################
 	# Inicio del juego.
@@ -435,11 +435,11 @@ def main():
 			jugador.width = jugador.width-30;
 			for i in bolas:
 				if jugador.colisionan(i):
-					vidas = vidas - 1;
-					if vidas == -1:
+					if vidas == 0:
 						salir = True;
 						jugar = True;
-					else
+					else:
+						vidas = vidas - 1;
 						sonidos_herida[randint(0, len(sonidos_herida)-1)].play();
 					jugador.posicion[1] = -100;
 					jugador.colisionado = False;

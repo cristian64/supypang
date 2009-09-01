@@ -65,9 +65,15 @@ class Objeto(object):
 		eb2 = otro.posicion[1]+otro.height/2;
 
 		colisionan = False;
-		if (ea <= ea2 and ea2 <= eb) or (ea <= eb2 and eb2 <= eb) or (ea2 <= ea and ea <= eb2) or (ea2 <= eb and eb <= eb2):
-			if (ei <= ei2 and ei2 <= ed) or (ei <= ed2 and ed2 <= ed) or (ei2 <= ei and ei <= ed2) or (ei2 <= ed and ed <= ed2):
-				colisionan = True;
+
+		# Comprobamos que el objeto colisionado (el que se recibe como parámetro) está dentro del escenario.
+		# Suele ocurrir que las bolas explotan cuando ni siquiera están en pantalla (cayendo repentinamente sobre el jugador).
+		if self.__class__.ESCENARIO[0] <= ei2 and ei2 <= self.__class__.ESCENARIO[2] and self.__class__.ESCENARIO[0] <= ed2 and ed2 <= self.__class__.ESCENARIO[2]:
+			if self.__class__.ESCENARIO[1] <= ea2 and ea2 <= self.__class__.ESCENARIO[3] and self.__class__.ESCENARIO[0] <= eb2 and eb2 <= self.__class__.ESCENARIO[2]:
+				# Comprobamos si los objetos colisionan.
+				if (ea <= ea2 and ea2 <= eb) or (ea <= eb2 and eb2 <= eb) or (ea2 <= ea and ea <= eb2) or (ea2 <= eb and eb <= eb2):
+					if (ei <= ei2 and ei2 <= ed) or (ei <= ed2 and ed2 <= ed) or (ei2 <= ei and ei <= ed2) or (ei2 <= ed and ed <= ed2):
+						colisionan = True;
 
 		return colisionan;
 
