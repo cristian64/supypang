@@ -4,7 +4,11 @@
 # (como python está instalado, se reconocerá la extensión .py y se ejecutará correctamente)
 #
 # Una vez ejecutado el script setup.py, la aplicación "standalone" está en la carpeta dist del directorio.
-# A veces no incluye todas las librerías y hay que copiarlas desde C:\Python26\Lib\site-packages\pygame
+# A veces no incluye todas las librerías y hay que copiarlas desde C:\Python26\Lib\site-packages\pygame\*.dll
+# Otros ficheros requeridos:     -Microsoft.VC90.CRT.manifest
+#                                -msvcm90.dll
+#                                -msvcp90.dll
+#                                -msvcr90.dll
 
 from distutils.core import setup;
 import py2exe;

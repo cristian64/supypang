@@ -20,7 +20,7 @@ def main():
 	###############################################################
 	# Inicialización de los recursos del sistema.
 	###############################################################
-	pygame.mixer.pre_init(44100, -16, 2, 512);
+	pygame.mixer.pre_init(44100, -16, 2, 1024);
 	pygame.init();
 	width = 800;
 	height = 600;
@@ -68,7 +68,7 @@ def main():
 	sonidos_muchos_disparos.append(pygame.mixer.Sound("../resources/sonidos/disparo4.wav"));
 	sonidos_muchos_disparos.append(pygame.mixer.Sound("../resources/sonidos/disparo9.wav"));
 	sonido_bso = pygame.mixer.Sound("../resources/sonidos/bso.wav");
-	sonido_bso.set_volume(0.2);
+	sonido_bso.set_volume(0.05);
 	sonido_bso.play(-1);
 	sonido_gameover = pygame.mixer.Sound("../resources/sonidos/gameover.wav");
 
@@ -77,7 +77,7 @@ def main():
 	###############################################################
 	puntuacion = 0;
 	nivel = 1;
-	niveles = [10, 20, 30, 40, 50, 70, 90, 100, 125, 150, 175, 200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000, 1200, 1400, 1600, 1800, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 6000, 7000, 8000, 9000, 10000];
+	niveles = [30, 60, 100, 140, 180, 220, 260, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900, 950, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000, 2200, 2400, 2600, 2800, 3000, 3300, 3600, 3900, 4200, 4500, 5000, 5500, 6000, 6500, 7000, 7500, 8000, 8500, 9000, 9500, 10000];
 	niveles.reverse();
 	bolas_destruidas = 0;
 	vidas = 3;
